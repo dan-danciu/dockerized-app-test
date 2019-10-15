@@ -1,0 +1,1 @@
+[System.Environment]::SetEnvironmentVariable('COMPOSE_CONVERT_WINDOWS_PATHS', 1, 'User')

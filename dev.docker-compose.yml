@@ -1,0 +1,43 @@
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: Trololo124!
+    volumes:
+      - mongodb:/data/db
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: Trololo124!
+    depends_on:
+      - mongo
+
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: ./api
+    ports:
+      - 80:80
+    volumes:
+      - ./api/app:/app
+    depends_on: 
+      - mongo
+    environment:
+      - MONGO=mongo
+      - MONGO_USER=admin
+      - MONGO_PASSWORD=Trololo124!
+
+  
+
+volumes:
+  mongodb: {}
