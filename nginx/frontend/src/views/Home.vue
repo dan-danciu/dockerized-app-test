@@ -1,7 +1,9 @@
 <template>
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <HelloWorld msg="Example app - Search some users by name!"/>
+    <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Illo pariatur reprehenderit assumenda quas suscipit harum distinctio aliquid deserunt, aperiam totam provident exercitationem eaque necessitatibus laudantium porro repellendus voluptas. Ex, odio!</p>
+    <div class="card">Trololo</div>
   </div>
 </template>
 
@@ -16,3 +18,21 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.home {
+  .card {
+    font-size: 16px;
+    min-height: 100px;
+    position: relative;
+    z-index: 1;
+    @include animateShadowSetup(2, 16);
+    &, &::before, &::after {
+      border-radius: 5px;
+    }
+    &:hover {
+      @include animateShadow;
+    }
+  }
+}
+
+</style>
