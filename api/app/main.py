@@ -15,7 +15,7 @@ data_client = pymongo.MongoClient(mongo,
 database = data_client["appdata"]
 users = database["users"]
 
-app = FastAPI()
+app = FastAPI(openapi_prefix="/api")
 
 
 @app.get("/")
