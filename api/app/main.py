@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import pymongo
+from bson.objectid import ObjectId
 from pydantic import BaseModel
 import os
 
@@ -32,10 +33,15 @@ async def read_root():
 
 
 @app.get("/user")
-async def read_item(user_id: int = None):
+async def read_item(user_id: str = None):
+    print(user_id)
     if not user_id:
-        return users.find_one()
-    return users.find_one({"_id": user_id})
+        res = users.find_one()
+        res['_id'] = str(res['_id'])
+        return res
+    res = users.find_one({"_id": ObjectId(user_id)})
+    res['_id'] = str(res['_id'])
+    return res
 
 @app.put("/user")
 async def add_item(user: User):
