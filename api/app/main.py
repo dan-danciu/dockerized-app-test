@@ -16,6 +16,7 @@ data_client = pymongo.MongoClient(mongo,
 
 database = data_client["appdata"]
 users = database["users"]
+users.create_index([("email", pymongo.ASCENDING)], unique=True)
 
 app = FastAPI(openapi_prefix="/api")
 
@@ -45,5 +46,10 @@ async def read_item(user_id: str = None):
 
 @app.put("/user")
 async def add_item(user: User):
-    res = users.insert_one(user.dict())
-    return {"_id": str(res.inserted_id), "user_data": user.json()}
+    try:
+        response = users.insert_one(user.dict())
+        res = { "success": True, "_id": str(response.inserted_id) }
+    except pymongo.errors.DuplicateKeyError as err:
+        res = { "success": False, "error":err }
+    return res
+
