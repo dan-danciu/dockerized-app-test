@@ -25,16 +25,16 @@ export default {
     return {
       appUrl: '',
       userData: {
-        first_name: 'John',
-        last_name: 'Doe',
-        email: 'jdoe@dandanciu.com',
-        age: '13'
+        first_name: '',
+        last_name: '',
+        email: '',
+        age: 0
       }
     }
   },
   mounted () {
     this.appUrl = window.location.href
-    axios.get(this.appUrl + 'api/user')
+    axios.get(this.appUrl + 'api/firstuser')
       .then(res => {
         this.userData = res.data
       })
