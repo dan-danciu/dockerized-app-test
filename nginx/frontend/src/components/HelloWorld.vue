@@ -7,6 +7,7 @@
       <div class="name">Name: <strong>{{ user.last_name }}, {{ user.first_name }}</strong></div>
       <div class="email">Email: <strong>{{ user.email }}</strong></div>
       <div class="age">Age: <strong>{{ user.age }}</strong></div>
+      <div class="gender">Gender: <strong>{{ user.gender }}</strong></div>
     </div>
   </div>
 </template>
@@ -59,6 +60,9 @@ h3 {
 }
 button {
   border-radius: 5px;
+  border: none;
+  min-height: 30px;
+  margin-left: 20px;
   background-color: $primary;
 }
 </style>

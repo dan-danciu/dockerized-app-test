@@ -34,10 +34,6 @@ class User(BaseModel):
 def read_root():
     return {"status": "running"}
 
-@app.get("/firstuser")
-def firstuser():
-    return users_collection.find_one({}, {"_id": 0 })
-
 @app.get("/user/{user_id}")
 def read_item(user_id: str):
     res = users_collection.find_one({"_id": ObjectId(user_id)})
