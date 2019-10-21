@@ -55,8 +55,9 @@ def finduser(search_string: str):
     query = {"$or": [{ "first_name": { "$regex": search_string, "$options" :'i' }},
             { "last_name": { "$regex": search_string, "$options" :'i' }},
             { "email": { "$regex": search_string, "$options" :'i' }}]}
-    cursor = users_collection.find(query, {"_id": 0})
+    cursor = users_collection.find(query)
     for doc in cursor:
+        doc['_id'] = str(doc['_id'])
         users.append(doc)
     return { "success": True, "users": users }
 
