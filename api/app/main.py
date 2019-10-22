@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from typing import List
 import pymongo
 from bson.objectid import ObjectId
 from pydantic import BaseModel
@@ -23,6 +24,7 @@ users_collection.create_index([("first_name", "text"),
 app = FastAPI(openapi_prefix="/api")
 
 class User(BaseModel):
+    id: str
     first_name: str
     last_name: str
     email: str
@@ -34,18 +36,17 @@ class User(BaseModel):
 def read_root():
     return {"status": "running"}
 
-@app.get("/user/{user_id}")
+@app.get("/user/{user_id}", response_model=User)
 def read_item(user_id: str):
     res = users_collection.find_one({"_id": ObjectId(user_id)})
-    res['_id'] = str(res['_id'])
-    return res
+    return User(**res, id=str(res["_id"]))
 
-@app.get("/finduser")
+@app.get("/findusers", response_model=List[User])
 def finduser(search_string: str):
     users=[]
     #full text search based on text index is faster but it only matches full words
     #regex is slower but matches parts
-    #ex: If you search Dan, text search finds only people who are explicitly named Dan
+    #ex: If you search dan, text search finds only people who are explicitly named Dan
     #but regex search finds all people that have dan wherever within their names or email
     #ft_query = {"$text": {"$search": search_string}}
     query = {"$or": [{ "first_name": { "$regex": search_string, "$options" :'i' }},
@@ -53,9 +54,9 @@ def finduser(search_string: str):
             { "email": { "$regex": search_string, "$options" :'i' }}]}
     cursor = users_collection.find(query)
     for doc in cursor:
-        doc['_id'] = str(doc['_id'])
-        users.append(doc)
-    return { "success": True, "users": users }
+        user = User(**doc, id = str(doc["_id"]))
+        users.append(user)
+    return users
 
 @app.put("/user")
 def add_item(user: User):

@@ -3,7 +3,7 @@
     <h1>{{ msg }}</h1>
     <input type="text" id="search" placeholder="Search" v-model="searchTerm">
     <button @click="searchUsers">Search</button>
-    <div class="card" v-for="user in users" :key="user._id">
+    <div class="card" v-for="user in users" :key="user.id">
       <div class="name">Name: <strong>{{ user.last_name }}, {{ user.first_name }}</strong></div>
       <div class="email">Email: <strong>{{ user.email }}</strong></div>
       <div class="age">Age: <strong>{{ user.age }}</strong></div>
@@ -29,9 +29,9 @@ export default {
   methods: {
     searchUsers () {
       this.appUrl = window.location.href
-      axios.get(this.appUrl + 'api/finduser?search_string=' + this.searchTerm)
+      axios.get(this.appUrl + 'api/findusers?search_string=' + this.searchTerm)
         .then(res => {
-          this.users = res.data.users
+          this.users = res.data
         })
     }
   }
