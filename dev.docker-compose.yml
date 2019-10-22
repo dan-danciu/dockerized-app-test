@@ -3,14 +3,28 @@ version: '3.1'
 services:
   nginx:
     build:
-      dockerfile: Dockerfile
+      dockerfile: dev-nginx.Dockerfile
       context: ./nginx
     ports:
       - 80:80
     restart: always
     depends_on:
       - api
-    
+      - frontend
+  
+  frontend:
+    build:
+      dockerfile: dev-npm.Dockerfile
+      context: ./nginx
+    ports: 
+      - 8080:8080
+    restart: always
+    volumes:
+      - /app/node_modules
+      - /app/dist
+      - ./nginx/frontend:/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
 
   mongo:
     image: mongo
