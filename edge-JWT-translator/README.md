@@ -7,7 +7,9 @@ Purpose of this module is to take incomming JWT tokens that contain only referen
 This can be done at nginx level.
 
 [StackOverflow](https://stackoverflow.com/questions/32778839/how-do-i-make-web-service-calls-within-nginx)
+
 [Nginx Documentation](https://www.nginx.com/blog/validating-oauth-2-0-access-tokens-nginx/)
+
 [Nginx Example](https://github.com/nginxinc/NGINX-Demos/blob/master/oauth2-token-introspection-oss/frontend.conf)
 
 Idea is this:
