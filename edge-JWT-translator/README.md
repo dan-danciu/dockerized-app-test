@@ -2,6 +2,8 @@
 
 ## This is a briliant idea until proven otherwise
 
+[Original source - youtube video](https://www.youtube.com/watch?v=BdKmZ7mPNns&list=WL&index=4&t=0s)
+
 Purpose of this module is to take incomming JWT tokens that contain only reference to a login id and translate those into JWT tokens that contain user data, passing those along to the other service modules.
 
 This can be done at nginx level.
