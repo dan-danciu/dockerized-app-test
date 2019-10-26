@@ -111,7 +111,7 @@ def finduser(search_string: str):
 @app.put("/user")
 def add_item(user: BaseUser, current_user: User = Depends(get_current_active_user)):
     if not current_user.role == 'staff':
-        raise HTTPException(status_code=400, detail="You are not authorised to perform this operation")
+        raise HTTPException(status_code=403, detail="You are not authorised to perform this operation")
     try:
         response = users_collection.insert_one(user.dict())
         res = { "success": True, "_id": str(response.inserted_id) }
