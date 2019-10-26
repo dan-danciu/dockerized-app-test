@@ -14,7 +14,7 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 # openssl rand -hex 32
 SECRET_KEY = "de372b58ab557051ca9e22c79d7e738dbac311b02872e9e03a9b7846c4c840aa"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
+ACCESS_TOKEN_EXPIRE_MINUTES = 10
 
 
 mongo=os.environ['MONGO']
@@ -56,7 +56,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
-app = FastAPI()
+app = FastAPI(openapi_prefix="/api/auth")
 
 
 def verify_password(plain_password, hashed_password):
