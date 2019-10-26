@@ -29,6 +29,8 @@ services:
   mongo:
     image: mongo
     restart: always
+    ports:
+      - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: Trololo124!
@@ -46,6 +48,22 @@ services:
     depends_on:
       - mongo
 
+  auth:
+    build:
+      dockerfile: dev.Dockerfile
+      context: ./auth
+    restart: always
+    ports:
+      - 5001:80
+    volumes:
+      - ./auth/app:/app
+    depends_on:
+      - mongo
+    environment:
+      - MONGO=mongo
+      - MONGO_USER=admin
+      - MONGO_PASSWORD=Trololo124!
+
   api:
     build:
       dockerfile: dev.Dockerfile
@@ -57,6 +75,7 @@ services:
       - ./api/app:/app
     depends_on: 
       - mongo
+      - auth
     environment:
       - MONGO=mongo
       - MONGO_USER=admin
