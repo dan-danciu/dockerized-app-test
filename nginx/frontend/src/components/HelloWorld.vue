@@ -29,7 +29,12 @@ export default {
   methods: {
     searchUsers () {
       this.appUrl = window.location.href
-      axios.get(this.appUrl + 'api/users/find?search_string=' + this.searchTerm)
+      let config = {
+            headers : {
+                'Authorization' : 'Bearer ' + this.$store.state.auth.access_token
+            }
+      }
+      axios.get(this.appUrl + 'api/users/find?search_string=' + this.searchTerm, config)
         .then(res => {
           this.users = res.data
         })

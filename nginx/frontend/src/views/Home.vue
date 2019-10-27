@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <button name="signout" @click="signout">Signout</button>
     <img alt="Vue logo" src="../assets/logo.png">
     <HelloWorld msg="Example app - Search some users by name!"/>
     <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Illo pariatur reprehenderit assumenda quas suscipit harum distinctio aliquid deserunt, aperiam totam provident exercitationem eaque necessitatibus laudantium porro repellendus voluptas. Ex, odio!</p>
@@ -15,7 +16,7 @@ export default {
   components: {
     HelloWorld
   },
-  data () {
+  data() {
     return {
       appUrl: '',
       userData: {
@@ -24,6 +25,11 @@ export default {
         email: '',
         age: 0
       }
+    }
+  },
+  methods: {
+    signout() {
+      this.$store.dispatch('auth/signOut')
     }
   }
 }
