@@ -29,7 +29,7 @@ export default {
   methods: {
     searchUsers () {
       this.appUrl = window.location.href
-      axios.get(this.appUrl + 'api/findusers?search_string=' + this.searchTerm)
+      axios.get(this.appUrl + 'api/users/find?search_string=' + this.searchTerm)
         .then(res => {
           this.users = res.data
         })

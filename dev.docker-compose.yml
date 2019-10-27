@@ -80,7 +80,6 @@ services:
       - MONGO=mongo
       - MONGO_USER=admin
       - MONGO_PASSWORD=Trololo124!
-      - AUTH_SERVER=auth
 
   
 
