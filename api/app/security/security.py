@@ -6,6 +6,7 @@ import jwt
 from jwt import PyJWTError
 from bson.objectid import ObjectId
 from models.models import User, TokenData
+from typing import List
 from models.db import users_collection
 from starlette.status import HTTP_401_UNAUTHORIZED
 
@@ -47,17 +48,12 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 
 class AccessRoles:
-    roles_list = ["user", "admin"]
-    def __init__(self, role: int):
-        self.role = role
+    def __init__(self, role_list: List[str]):
+        self.roles = role_list
     def __call__(self, user: User = Depends(get_current_active_user)):
-        try:
-            user_role = self.roles_list.index(user.role)
-        except ValueError:
-            raise HTTPException(status_code=403, detail="You are not authorised to perform this operation")
-        if user_role < self.role:
-            raise HTTPException(status_code=403, detail="You are not authorised to perform this operation")
-        return user
+        if user.role in self.roles:
+            return user
+        raise HTTPException(status_code=403, detail="You are not authorised to perform this operation")
 
-admin = AccessRoles(1)
-user = AccessRoles(0)
+admin = AccessRoles(["admin"])
+dev_admin = AccessRoles(["admin", "dev"])

@@ -8,10 +8,10 @@ from typing import List
 router = APIRouter()
 
 @router.get("/me", response_model=User)
-async def read_users_me(current_user: User = Depends(security.user)):
+async def read_users_me(current_user: User = Depends(security.get_current_active_user)):
     return current_user
 
-@router.get("/find", response_model=List[User])
+@router.get("/find", response_model=List[User], dependencies=[Depends(security.dev_admin)])
 def finduser(search_string: str):
     users=[]
     #full text search based on text index is faster but it only matches full words
