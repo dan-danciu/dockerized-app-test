@@ -2,19 +2,19 @@
   <div class="home">
     <button name="signout" @click="signout">Signout</button>
     <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Example app - Search some users by name!"/>
+    <UserSearch msg="Example app - Search some users by name!"/>
     <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Illo pariatur reprehenderit assumenda quas suscipit harum distinctio aliquid deserunt, aperiam totam provident exercitationem eaque necessitatibus laudantium porro repellendus voluptas. Ex, odio!</p>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import UserSearch from '@/components/UserSearch.vue'
 
 export default {
   name: 'home',
   components: {
-    HelloWorld
+    UserSearch
   },
   data() {
     return {

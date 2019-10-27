@@ -16,7 +16,7 @@
 import axios from 'axios'
 
 export default {
-  name: 'HelloWorld',
+  name: 'UserSearch',
   data () {
     return {
       searchTerm: '',
@@ -37,6 +37,9 @@ export default {
       axios.get(this.appUrl + 'api/users/find?search_string=' + this.searchTerm, config)
         .then(res => {
           this.users = res.data
+        })
+        .catch((err) => {
+          console.log(err, err.response.data.detail)
         })
     }
   }
