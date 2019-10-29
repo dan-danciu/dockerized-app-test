@@ -55,5 +55,6 @@ class AccessRoles:
             return user
         raise HTTPException(status_code=403, detail="You are not authorised to perform this operation")
 
+any_user = get_current_active_user
 admin = AccessRoles(["admin"])
 dev_admin = AccessRoles(["admin", "dev"])

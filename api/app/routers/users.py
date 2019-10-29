@@ -8,7 +8,7 @@ from typing import List
 router = APIRouter()
 
 @router.get("/me", response_model=User)
-async def read_users_me(current_user: User = Depends(security.get_current_active_user)):
+async def read_users_me(current_user: User = Depends(security.any_user)):
     return current_user
 
 @router.get("/find", response_model=List[User], dependencies=[Depends(security.dev_admin)])
