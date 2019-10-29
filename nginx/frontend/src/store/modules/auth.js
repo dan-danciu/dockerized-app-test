@@ -1,4 +1,5 @@
 import axios from 'axios'
+import jwt_decode from 'jwt-decode'
 import { router } from '../../router'
 
 const getDefaultState = () => {
@@ -28,7 +29,7 @@ const getDefaultState = () => {
       async signIn({ commit, dispatch }, formData) {
         let token = localStorage.getItem('access_token')
         if (token) {
-            let jsonPayload = decodeToken(token)
+            let jsonPayload = jwt_decode(token)
             let expires = jsonPayload.exp
             if (expires < Math.floor(Date.now()/1000)) {
                 dispatch('signOut')
@@ -46,7 +47,7 @@ const getDefaultState = () => {
                 }
             }
             let res = await axios.post('/api/auth/token', formData, config)
-            let jsonPayload = decodeToken(res.data.access_token)
+            let jsonPayload = jwt_decode(res.data.access_token)
             let payload = {'access_token': res.data.access_token, 'token_expires': jsonPayload.exp}
             commit('setCredentials', payload)
             localStorage.setItem('access_token', res.data.access_token)
@@ -59,15 +60,6 @@ const getDefaultState = () => {
         commit('clearData')
       }
 
-  }
-
-  const decodeToken = token => {
-    let base64Url = token.split('.')[1]
-    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-    let jsonPayload = JSON.parse(decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    }).join('')))
-    return jsonPayload    
   }
 
   export default {
