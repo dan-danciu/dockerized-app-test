@@ -30,8 +30,6 @@ data_client = pymongo.MongoClient(mongo,
 
 database = data_client["appdata"]
 logins_collection = database["users"]
-logins_collection.create_index([("username", pymongo.ASCENDING)], name="username_index", unique=True, partialFilterExpression = { "username": { "$exists": True }})
-
 
 class Token(BaseModel):
     access_token: str
