@@ -22,7 +22,9 @@ def finduser(search_string: str):
     query = {"$or": [{ "first_name": { "$regex": search_string, "$options" :'i' }},
             { "last_name": { "$regex": search_string, "$options" :'i' }},
             { "email": { "$regex": search_string, "$options" :'i' }}]}
-    cursor = users_collection.find(query)
+    cursor = users_collection.find(query).sort(
+        [("last_name", pymongo.ASCENDING), 
+        ("first_name", pymongo.ASCENDING)])
     for doc in cursor:
         user = User(**doc, id = str(doc["_id"]))
         users.append(user)

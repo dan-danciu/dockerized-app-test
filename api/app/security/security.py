@@ -53,8 +53,10 @@ class AccessRoles:
     def __call__(self, user: User = Depends(get_current_active_user)):
         if user.role in self.roles:
             return user
+        if user.role == 'admin':
+            return user
         raise HTTPException(status_code=403, detail="You are not authorised to perform this operation")
 
 any_user = get_current_active_user
-admin = AccessRoles(["admin"])
-dev_admin = AccessRoles(["admin", "dev"])
+admin = AccessRoles(['admin'])
+dev_admin = AccessRoles(['admin', 'dev'])

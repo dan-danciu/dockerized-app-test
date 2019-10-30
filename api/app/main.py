@@ -10,11 +10,18 @@ app = FastAPI(openapi_prefix="/api",
 
 @app.on_event("startup")
 async def startup_event():
-    users_collection.create_index([("email", pymongo.ASCENDING)], 
-                                name="email_index", 
-                                unique=True)
-    users_collection.create_index([("first_name", "text"), 
-                                    ("last_name", "text")])
+    users_collection.create_index(
+        [("email", pymongo.ASCENDING)], 
+        name="email_index", 
+        unique=True)
+    users_collection.create_index(
+        [("first_name", "text"), 
+        ("last_name", "text")])
+    users_collection.create_index(
+        [("username", pymongo.ASCENDING)], 
+        name="username_index", 
+        unique=True, 
+        partialFilterExpression = { "username": { "$exists": True }})
 
 @app.get("/")
 def read_root():
