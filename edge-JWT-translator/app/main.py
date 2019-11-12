@@ -9,6 +9,7 @@ from jwt import PyJWTError
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from starlette.status import HTTP_401_UNAUTHORIZED
+from starlette.responses import Response
 
 # to get a string like this run:
 # openssl rand -hex 32
@@ -88,7 +89,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     user = get_login_by_id(token_data.sub)
     if user is None:
         raise credentials_exception
-    new_token_data = (**user.dict(), **token_data.dict())
+    new_token_data = user.dict()
+    new_token_data['exp'] = token_data.exp
+    new_token_data['sub'] = token_data.sub
     return new_token_data
 
 
@@ -99,7 +102,7 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 
 @app.post("/translate", response_model=Token)
-async def translate_access_token(user: User = Depends(get_current_active_user)):
+async def translate_access_token(response: Response, user: User = Depends(get_current_active_user)):
     if not user:
         raise HTTPException(
             status_code=HTTP_401_UNAUTHORIZED,
@@ -108,5 +111,6 @@ async def translate_access_token(user: User = Depends(get_current_active_user)):
         )
     access_token = create_access_token(
         data=user.dict())
-    return {"access_token": access_token, "token_type": "bearer"}
+    response.headers["x-token"] = "Bearer " + access_token
+    return {"message": "success"}
 
