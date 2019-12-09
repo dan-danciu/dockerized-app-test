@@ -11,6 +11,7 @@ services:
     depends_on:
       - api
       - frontend
+      - translator
   
   frontend:
     build:
@@ -76,6 +77,21 @@ services:
     depends_on: 
       - mongo
       - auth
+    environment:
+      - MONGO=mongo
+      - MONGO_USER=admin
+      - MONGO_PASSWORD=Trololo124!
+
+  translator:
+    build:
+      dockerfile: dev.Dockerfile
+      context: ./edge-JWT-translator
+    ports:
+      - 5002:80
+    volumes:
+      - ./edge-JWT-translator/app:/app
+    depends_on:
+      - mongo
     environment:
       - MONGO=mongo
       - MONGO_USER=admin
