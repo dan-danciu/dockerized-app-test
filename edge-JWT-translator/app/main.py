@@ -46,6 +46,7 @@ class User(BaseModel):
     gender: str
     age: int
     is_disabled: bool = None
+    role: str = "user"
     sub: str
     exp: int
 
@@ -58,9 +59,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 app = FastAPI(openapi_prefix="/api/translator")
 
 
-def get_login_by_id(id):
-    user_dict = logins_collection.find_one({"_id": ObjectId(id)})
-    user = User(**user_dict, id=str(user_dict["_id"]))
+def get_login_by_id(token):
+    user_dict = logins_collection.find_one({"_id": ObjectId(token.sub)})
+    user = User(**user_dict, id=str(user_dict["_id"]), sub=token.sub, exp=token.exp)
     return user
 
 def create_access_token(*, data: dict):
@@ -84,11 +85,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(sub=id, exp=exp)
     except PyJWTError:
         raise credentials_exception
-    user = get_login_by_id(token_data.sub)
+    user = get_login_by_id(token_data)
     if user is None:
         raise credentials_exception
-    user.sub = token_data.sub
-    user.exp = token_data.exp
     return user
 
 
@@ -99,10 +98,9 @@ def get_current_active_user(current_user: User = Depends(get_current_user)):
 
 @app.get("/")
 def test():
-    print("well at least it's something")
     return {"message": "success"}
 
-@app.post("/translate")
+@app.get("/translate")
 def translate_access_token(response: Response, user: User = Depends(get_current_active_user)):
     if not user:
         raise HTTPException(

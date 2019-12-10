@@ -3,12 +3,14 @@
     <h1>{{ msg }}</h1>
     <input type="text" id="search" placeholder="Search" v-model="searchTerm">
     <button @click="searchUsers">Search</button>
+    <button name="xtoken" @click="getXtoken">X-Token Test</button>
     <div class="card" v-for="user in users" :key="user.id">
       <div class="name">Name: <strong>{{ user.last_name }}, {{ user.first_name }}</strong></div>
       <div class="email">Email: <strong>{{ user.email }}</strong></div>
       <div class="age">Age: <strong>{{ user.age }}</strong></div>
       <div class="gender">Gender: <strong>{{ user.gender }}</strong></div>
     </div>
+    <div>{{ xtoken }}</div>
   </div>
 </template>
 
@@ -20,7 +22,8 @@ export default {
   data () {
     return {
       searchTerm: '',
-      users: []
+      users: [],
+      xtoken: ''
     }
   },
   props: {
@@ -37,6 +40,21 @@ export default {
       axios.get(this.appUrl + 'api/users/find?search_string=' + this.searchTerm, config)
         .then(res => {
           this.users = res.data
+        })
+        .catch((err) => {
+          console.log(err, err.response.data.detail)
+        })
+    },
+    getXtoken () {
+      this.appUrl = window.location.href
+      let config = {
+            headers : {
+                'Authorization' : 'Bearer ' + this.$store.state.auth.access_token
+            }
+      }
+      axios.get(this.appUrl + 'api/xtoken', config)
+        .then(res => {
+          this.xtoken = res.data
         })
         .catch((err) => {
           console.log(err, err.response.data.detail)

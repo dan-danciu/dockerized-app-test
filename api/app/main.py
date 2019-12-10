@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Header
 import pymongo
 from models.db import users_collection
 from routers import users
@@ -26,6 +26,10 @@ async def startup_event():
 @app.get("/")
 def read_root():
     return {"status": "running"}
+
+@app.get("/xtoken")
+def get_xtoken(x_token: str = Header(None)):
+    return {"x-token": x_token}
 
 app.include_router(
     users.router,
