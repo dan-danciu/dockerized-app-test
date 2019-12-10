@@ -86,6 +86,7 @@ services:
     build:
       dockerfile: dev.Dockerfile
       context: ./edge-JWT-translator
+    restart: always
     ports:
       - 5002:80
     volumes:

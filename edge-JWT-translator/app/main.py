@@ -32,17 +32,13 @@ database = data_client["appdata"]
 logins_collection = database["users"]
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
 class TokenData(BaseModel):
     sub: str = None
     exp: int
 
 
-class User(TokenData):
+class User(BaseModel):
+    id: str
     username: str
     first_name: str
     last_name: str
@@ -50,6 +46,8 @@ class User(TokenData):
     gender: str
     age: int
     is_disabled: bool = None
+    sub: str
+    exp: int
 
 
 
@@ -89,10 +87,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     user = get_login_by_id(token_data.sub)
     if user is None:
         raise credentials_exception
-    new_token_data = user.dict()
-    new_token_data['exp'] = token_data.exp
-    new_token_data['sub'] = token_data.sub
-    return new_token_data
+    user.sub = token_data.sub
+    user.exp = token_data.exp
+    return user
 
 
 def get_current_active_user(current_user: User = Depends(get_current_user)):
@@ -105,9 +102,8 @@ def test():
     print("well at least it's something")
     return {"message": "success"}
 
-@app.post("/translate", response_model=Token)
+@app.post("/translate")
 def translate_access_token(response: Response, user: User = Depends(get_current_active_user)):
-    print("here I am")
     if not user:
         raise HTTPException(
             status_code=HTTP_401_UNAUTHORIZED,
@@ -116,6 +112,7 @@ def translate_access_token(response: Response, user: User = Depends(get_current_
         )
     access_token = create_access_token(
         data=user.dict())
-    response.headers["x-token"] = "Bearer " + access_token
+    response.headers["x-token"] = "Bearer " + access_token.decode()
+    # print(response.headers)
     return {"message": "success"}
 
