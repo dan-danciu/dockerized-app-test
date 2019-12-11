@@ -9,6 +9,7 @@ from jwt import PyJWTError
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from starlette.status import HTTP_401_UNAUTHORIZED
+import uuid
 
 # to get a string like this run:
 # openssl rand -hex 32
@@ -31,9 +32,10 @@ data_client = pymongo.MongoClient(mongo,
 database = data_client["appdata"]
 logins_collection = database["users"]
 
-class Token(BaseModel):
+class TokenResponse(BaseModel):
     access_token: str
     token_type: str
+    refresh_token: str
 
 
 class TokenData(BaseModel):
@@ -48,6 +50,7 @@ class User(BaseModel):
 
 class UserInDB(User):
     hashed_password: str
+    refresh_token: str = None
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -122,8 +125,14 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     return current_user
 
 
-@app.post("/token", response_model=Token)
+@app.post("/token", response_model=TokenResponse)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    # if form_data.grant_type == "refresh_token":
+    #     current_refresh_token = form_data.refresh_token
+    #     user = get_current_active_user()
+        #add new refresh token to user in db
+        #create new access token
+        #return token_response right here
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -135,7 +144,9 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     access_token = create_access_token(
         data={"sub": user.id}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    refresh_token = str(uuid.uuid4())
+    token_response = TokenResponse(access_token=access_token, token_type="bearer", refresh_token=refresh_token)
+    return token_response
 
 
 @app.get("/users/me/", response_model=User)
