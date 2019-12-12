@@ -124,27 +124,40 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
+async def generate_refresh_token_for_user(id: str):
+    refresh_token = str(uuid.uuid4())
+    logins_collection.update_one({"_id": ObjectId(id)}, 
+        {"$set": {
+            "refresh_token": refresh_token,
+            "token_expires": None
+        }})
+    return refresh_token
 
 @app.post("/token", response_model=TokenResponse)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    # if form_data.grant_type == "refresh_token":
-    #     current_refresh_token = form_data.refresh_token
-    #     user = get_current_active_user()
-        #add new refresh token to user in db
-        #create new access token
-        #return token_response right here
-    user = authenticate_user(form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    if form_data.grant_type == "refresh_token":
+        given_refresh_token = form_data.refresh_token
+        user = get_current_active_user()
+        if not given_refresh_token ==  user.refresh_token:
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+    else:
+        user = authenticate_user(form_data.username, form_data.password)
+        if not user:
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED,
+                detail="Incorrect username or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.id}, expires_delta=access_token_expires
     )
-    refresh_token = str(uuid.uuid4())
+    refresh_token = await generate_refresh_token_for_user(user.id)
+
     token_response = TokenResponse(access_token=access_token, token_type="bearer", refresh_token=refresh_token)
     return token_response
 
