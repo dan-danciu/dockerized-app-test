@@ -59,15 +59,15 @@ const getDefaultState = () => {
 
       signOut({ commit }) {
         localStorage.clear()
+        sessionStorage.clear()
         commit('clearData')
         router.replace({name: 'login'})
       },
 
       async requestToken({state, commit}, formData) {
         let config = {
-          header : {
-              'Content-Type' : 'multipart/form-data',
-              'Authorization': 'Bearer ' + state.access_token
+          headers : {
+              'Content-Type' : 'multipart/form-data'
           }
         }
         let res = await axios.post('/api/auth/token', formData, config)
@@ -83,16 +83,33 @@ const getDefaultState = () => {
         router.replace({name: 'home'})
       },
 
+      async refreshToken({state, commit}, formData) {
+        let config = {
+          headers : {
+              'Authorization': 'Bearer ' + state.access_token
+          }
+        }
+        let res = await axios.post('/api/auth/refresh', formData, config)
+        let jsonPayload = jwt_decode(res.data.access_token)
+        let payload = {
+          'access_token': res.data.access_token, 
+          'token_expires': jsonPayload.exp, 
+          'refresh_token': res.data.refresh_token
+        }
+        await commit('setCredentials', payload)
+        localStorage.setItem('access_token', res.data.access_token)
+        sessionStorage.setItem('refresh_token', res.data.refresh_token)
+      },
+
       async checkToken({state, dispatch}) {
-        if (state.token_expires < Math.floor(Date.now()/1000) && state.refresh_token) {
-          let formData = new FormData()
-          formData.append('grant_type', "refresh_token")
-          formData.append('refresh_token', state.refresh_token)
-          await dispatch('requestToken', formData)
+        if (state.token_expires < Math.floor(Date.now()/1000)) {
+          if (state.refresh_token) {
+            let formData = new FormData()
+            formData.append('refresh_token', state.refresh_token)
+            await dispatch('refreshToken', formData)
+          }
         }
-        else {
-          dispatch('signOut')
-        }
+        return
       }
 
   }

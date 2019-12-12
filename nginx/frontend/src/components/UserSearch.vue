@@ -30,8 +30,9 @@ export default {
     msg: String
   },
   methods: {
-    searchUsers () {
+    async searchUsers () {
       this.appUrl = window.location.href
+      await this.$store.dispatch('auth/checkToken')
       let config = {
             headers : {
                 'Authorization' : 'Bearer ' + this.$store.state.auth.access_token
@@ -83,12 +84,5 @@ h3 {
   &:hover {
     @include animateShadow;
   }
-}
-button {
-  border-radius: 5px;
-  border: none;
-  min-height: 30px;
-  margin-left: 20px;
-  background-color: $primary;
 }
 </style>

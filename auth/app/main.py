@@ -3,7 +3,7 @@ import pymongo
 from bson.objectid import ObjectId
 import os
 import jwt
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt import PyJWTError
 from passlib.context import CryptContext
@@ -15,7 +15,7 @@ import uuid
 # openssl rand -hex 32
 SECRET_KEY = "de372b58ab557051ca9e22c79d7e738dbac311b02872e9e03a9b7846c4c840aa"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 10
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
 
 credentials_exception = HTTPException(
         status_code=HTTP_401_UNAUTHORIZED,
@@ -119,9 +119,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     return user
 
 async def get_current_user_refresh(token: str = Depends(oauth2_scheme)):
+    options = {
+        'verify_exp': False
+    }
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], verify_exp=False)
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], options=options)
         id: str = payload.get("sub")
+        print('the id: ' + id)
         if id is None:
             raise credentials_exception
         token_data = TokenData(id=id)
@@ -154,19 +158,13 @@ async def generate_refresh_token_for_user(id: str):
 
 @app.post("/token", response_model=TokenResponse)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    if form_data.grant_type == "refresh_token":
-        given_refresh_token = form_data.refresh_token
-        user = get_current_active_user()
-        if not given_refresh_token ==  user.refresh_token:
-            raise credentials_exception
-    else:
-        user = authenticate_user(form_data.username, form_data.password)
-        if not user:
-            raise HTTPException(
-                status_code=HTTP_401_UNAUTHORIZED,
-                detail="Incorrect username or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+    user = authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.id}, expires_delta=access_token_expires
@@ -176,6 +174,20 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     token_response = TokenResponse(access_token=access_token, token_type="bearer", refresh_token=refresh_token)
     return token_response
 
+@app.post("/refresh", response_model=TokenResponse)
+async def refresh_access_token(refresh_token: str = Form(...), user: User = Depends(get_current_active_user_refresh)):
+    # print(user.dict())
+    if not refresh_token ==  user.refresh_token:
+        raise credentials_exception
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.id}, expires_delta=access_token_expires
+    )
+    refresh_token = await generate_refresh_token_for_user(user.id)
+
+    token_response = TokenResponse(access_token=access_token, token_type="bearer", refresh_token=refresh_token)
+    return token_response
 
 @app.get("/users/me/", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
