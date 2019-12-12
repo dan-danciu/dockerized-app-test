@@ -17,6 +17,11 @@ SECRET_KEY = "de372b58ab557051ca9e22c79d7e738dbac311b02872e9e03a9b7846c4c840aa"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 10
 
+credentials_exception = HTTPException(
+        status_code=HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 mongo=os.environ['MONGO']
 username=os.environ['MONGO_USER']
@@ -100,11 +105,6 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         id: str = payload.get("sub")
@@ -118,8 +118,27 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     return user
 
+async def get_current_user_refresh(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], verify_exp=False)
+        id: str = payload.get("sub")
+        if id is None:
+            raise credentials_exception
+        token_data = TokenData(id=id)
+    except PyJWTError:
+        raise credentials_exception
+    user = get_login_by_id(id=token_data.id)
+    if user is None:
+        raise credentials_exception
+    return user
+
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
+    if current_user.is_disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+
+async def get_current_active_user_refresh(current_user: User = Depends(get_current_user_refresh)):
     if current_user.is_disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -139,11 +158,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         given_refresh_token = form_data.refresh_token
         user = get_current_active_user()
         if not given_refresh_token ==  user.refresh_token:
-            raise HTTPException(
-                status_code=HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            raise credentials_exception
     else:
         user = authenticate_user(form_data.username, form_data.password)
         if not user:
