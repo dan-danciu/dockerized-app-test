@@ -39,3 +39,7 @@ def add_item(user: BaseUser, current_user: User = Depends(security.admin)):
     except pymongo.errors.DuplicateKeyError:
         res = { "success": False, "error": "E-mail address already exists in database." }
     return res
+
+@router.get("/xtoken")
+def get_xtoken(token: str = Depends(security.get_token_development_only)):
+    return {"x-token": token}

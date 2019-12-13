@@ -27,9 +27,6 @@ async def startup_event():
 def read_root():
     return {"status": "running"}
 
-@app.get("/xtoken")
-def get_xtoken(x_token: str = Header(None)):
-    return {"x-token": x_token}
 
 app.include_router(
     users.router,

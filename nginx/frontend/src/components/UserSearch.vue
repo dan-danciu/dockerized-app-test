@@ -48,12 +48,13 @@ export default {
     },
     getXtoken () {
       this.appUrl = window.location.href
+      this.$store.dispatch('auth/checkToken')
       let config = {
             headers : {
                 'Authorization' : 'Bearer ' + this.$store.state.auth.access_token
             }
       }
-      axios.get(this.appUrl + 'api/xtoken', config)
+      axios.get(this.appUrl + 'api/users/xtoken', config)
         .then(res => {
           this.xtoken = res.data
         })
