@@ -38,7 +38,7 @@ export default {
   ** Nuxt.js modules
   */
   modules: [
-    // Doc: https://axios.nuxtjs.org/usage
+    '@nuxtjs/style-resources',
     '@nuxtjs/axios',
   ],
   /*
@@ -56,5 +56,10 @@ export default {
     */
     extend (config, ctx) {
     }
+  },
+  styleResources: {
+    scss: [
+        'assets/scss/_variables.scss',
+    ]
   }
 }
