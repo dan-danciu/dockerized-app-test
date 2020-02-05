@@ -1,20 +1,19 @@
 <template>
   <div class="container">
     <div>
-      <logo />
-      <div>Test</div>
+      <div class="title">Test</div>
+      <UserSearch msg="Example app - Search some users by name!" />
     </div>
   </div>
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-
 export default {
+  middleware: "authenticated",
   components: {
-    Logo
+    UserSearch: () => import("../components/UserSearch")
   }
-}
+};
 </script>
 
 <style lang="scss">
@@ -26,5 +25,4 @@ export default {
   align-items: center;
   text-align: center;
 }
-
 </style>

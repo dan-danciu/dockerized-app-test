@@ -11,12 +11,14 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "nuxt": "^2.0.0",
-    "@nuxtjs/axios": "^5.3.6"
+    "@nuxtjs/axios": "^5.3.6",
+    "jwt-decode": "^2.2.0",
+    "nuxt": "^2.0.0"
   },
   "devDependencies": {
     "@nuxtjs/style-resources": "^1.0.0",
     "node-sass": "^4.13.1",
+    "prettier": "^1.19.1",
     "sass-loader": "^8.0.2"
   }
 }
