@@ -18,13 +18,21 @@ services:
       dockerfile: dev-nuxt.Dockerfile
       context: ./nuxt-app
     ports:
-      - 3000:3000
+      - 8080:8080
     restart: always
     volumes:
-      - /app/node_modules
-      - /app/dist
-      - /app/.nuxt
-      - ./nuxt-app:/app
+      - ./nuxt-app/assets/:/app/assets
+      - ./nuxt-app/components/:/app/components
+      - ./nuxt-app/layouts/:/app/layouts
+      - ./nuxt-app/middleware/:/app/middleware
+      - ./nuxt-app/pages/:/app/pages
+      - ./nuxt-app/plugins/:/app/plugins
+      - ./nuxt-app/static/:/app/static
+      - ./nuxt-app/store/:/app/store
+      - ./nuxt-app/jsonconfig.json:/app/jsonconfig.json
+      - ./nuxt-app/nuxt.config.js:/app/nuxt.config.js
+      - ./nuxt-app/package-lock.json:/app/package-lock.json
+      - ./nuxt-app/package.json:/app/package.json
 
   mongo:
     image: mongo
