@@ -17,16 +17,16 @@ SECRET_KEY = "de372b58ab557051ca9e22c79d7e738dbac311b02872e9e03a9b7846c4c840aa"
 ALGORITHM = "HS256"
 
 
-mongo=os.environ['MONGO']
-username=os.environ['MONGO_USER']
-password=os.environ['MONGO_PASSWORD']
+mongo = os.environ['MONGO']
+username = os.environ['MONGO_USER']
+password = os.environ['MONGO_PASSWORD']
 
 
 data_client = pymongo.MongoClient(mongo,
-                                username=username,
-                                password=password,
-                                authSource='admin',
-                                authMechanism='SCRAM-SHA-256')
+                                  username=username,
+                                  password=password,
+                                  authSource='admin',
+                                  authMechanism='SCRAM-SHA-256')
 
 database = data_client["appdata"]
 logins_collection = database["users"]
@@ -44,12 +44,11 @@ class User(BaseModel):
     last_name: str
     email: str
     gender: str
-    age: int
+    birth_date: int
     is_disabled: bool = None
     role: str = "user"
     sub: str
     exp: int
-
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -61,8 +60,10 @@ app = FastAPI(openapi_prefix="/api/translator")
 
 def get_login_by_id(token):
     user_dict = logins_collection.find_one({"_id": ObjectId(token.sub)})
-    user = User(**user_dict, id=str(user_dict["_id"]), sub=token.sub, exp=token.exp)
+    user = User(
+        **user_dict, id=str(user_dict["_id"]), sub=token.sub, exp=token.exp)
     return user
+
 
 def create_access_token(*, data: dict):
     to_encode = data.copy()
@@ -96,9 +97,11 @@ def get_current_active_user(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
+
 @app.get("/")
 def test():
     return {"message": "success"}
+
 
 @app.get("/translate")
 def translate_access_token(response: Response, user: User = Depends(get_current_active_user)):
@@ -113,4 +116,3 @@ def translate_access_token(response: Response, user: User = Depends(get_current_
     response.headers["x-token"] = "Bearer " + access_token.decode()
     # print(response.headers)
     return {"message": "success"}
-

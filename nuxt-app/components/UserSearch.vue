@@ -22,7 +22,7 @@
         <strong>{{ user.gender }}</strong>
       </div>
     </div>
-    <div>{{ xtoken }}</div>
+    <div class="xtoken">{{ xtoken }}</div>
   </div>
 </template>
 
@@ -48,9 +48,9 @@ export default {
           Authorization: "Bearer " + this.$store.state.auth.access_token
         }
       };
-      axios
+      this.$axios
         .get(
-          this.appUrl + "api/users/find?search_string=" + this.searchTerm,
+          "http://localhost/api/users/find?search_string=" + this.searchTerm,
           config
         )
         .then(res => {
@@ -68,8 +68,8 @@ export default {
           Authorization: "Bearer " + this.$store.state.auth.access_token
         }
       };
-      axios
-        .get(this.appUrl + "api/users/xtoken", config)
+      this.$axios
+        .get("http://localhost/api/users/xtoken", config)
         .then(res => {
           this.xtoken = res.data;
         })
@@ -102,5 +102,9 @@ h3 {
   &:hover {
     @include animateShadow;
   }
+}
+.xtoken {
+  word-wrap: break-word;
+  max-width: 50vw;
 }
 </style>

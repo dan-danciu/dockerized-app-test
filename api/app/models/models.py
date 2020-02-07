@@ -1,14 +1,17 @@
 from pydantic import BaseModel
 
+
 class TokenData(BaseModel):
     id: str = None
+
 
 class BaseUser(BaseModel):
     first_name: str
     last_name: str
     email: str
     gender: str
-    age: int
+    birth_date: int
+
 
 class User(BaseUser):
     id: str

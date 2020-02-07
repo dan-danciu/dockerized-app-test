@@ -4,12 +4,13 @@ const getDefaultState = () => {
   return {
     access_token: null,
     token_expires: null,
-    refresh_token: null
+    refresh_token: null,
+    authenticated: false
   };
 };
 
 const state = () => {
-  getDefaultState();
+  return getDefaultState();
 };
 
 const getters = {};
@@ -19,6 +20,7 @@ const mutations = {
     state.access_token = payload.access_token;
     state.token_expires = payload.token_expires;
     state.refresh_token = payload.refresh_token;
+    state.authenticated = true
   },
   clearData(state) {
     Object.assign(state, getDefaultState());
@@ -34,9 +36,9 @@ const actions = {
       let expires = jsonPayload.exp;
       if (expires < Math.floor(Date.now() / 1000)) {
         if (refresh_token) {
-          dispatch("requestToken", formData);
+          await dispatch("requestToken", formData);
         } else {
-          dispatch("signOut");
+          await dispatch("signOut");
         }
       } else {
         let payload = {
@@ -44,38 +46,35 @@ const actions = {
           token_expires: jsonPayload.exp,
           refresh_token
         };
-        commit("setCredentials", payload);
-        router.replace({ name: "home" });
+        await commit("setCredentials", payload);
       }
     } else {
-      dispatch("requestToken", formData);
+      await dispatch("requestToken", formData);
     }
   },
 
   signOut({ commit }) {
     localStorage.clear();
-    sessionStorage.clear();
+    sessionStorage.clear()
     commit("clearData");
-    router.replace({ name: "login" });
   },
 
-  async requestToken({ state, commit }, formData) {
+  async requestToken({ commit }, formData) {
     let config = {
       headers: {
         "Content-Type": "multipart/form-data"
       }
     };
-    let res = await this.$axios.post("/api/auth/token", formData, config);
+    let res = await this.$axios.post("http://localhost/api/auth/token", formData, config);
     let jsonPayload = jwt_decode(res.data.access_token);
     let payload = {
       access_token: res.data.access_token,
       token_expires: jsonPayload.exp,
       refresh_token: res.data.refresh_token
     };
-    commit("setCredentials", payload);
+    await commit("setCredentials", payload);
     localStorage.setItem("access_token", res.data.access_token);
     sessionStorage.setItem("refresh_token", res.data.refresh_token);
-    router.replace({ name: "home" });
   },
 
   async refreshToken({ state, commit }, formData) {
@@ -84,7 +83,7 @@ const actions = {
         Authorization: "Bearer " + state.access_token
       }
     };
-    let res = await this.$axios.post("/api/auth/refresh", formData, config);
+    let res = await this.$axios.post("http://localhost/api/auth/refresh", formData, config);
     let jsonPayload = jwt_decode(res.data.access_token);
     let payload = {
       access_token: res.data.access_token,

@@ -1,9 +1,11 @@
 <template>
   <nav>
     <div class="nav-links">
-      <nuxt-link to="/">Home</nuxt-link>
-      <nuxt-link to="/login">Login</nuxt-link>
-      <nuxt-link to="/about">About</nuxt-link>
+      <nuxtLink to="/">Home</nuxtLink>
+      <nuxtLink to="/login" v-show="!isAuthenticated">Login</nuxtLink>
+      <nuxtLink to="/about">About</nuxtLink>
+      <nuxtLink to="/users" @v-show="isAuthenticated">User Search</nuxtLink>
+      <a class="signout" @click="signout" v-show="isAuthenticated">Sign out</a>
     </div>
   </nav>
 </template>
@@ -14,25 +16,34 @@ export default {
     isAuthenticated() {
       return this.$store.state.auth.authenticated;
     }
+  },
+  methods: {
+    signout() {
+      this.$store.dispatch("auth/signOut");
+    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-nav {
-  .nav-links {
-    margin-left: auto;
-    margin-right: auto;
-    text-align: right;
-    max-width: 1200px;
-    a {
-      margin-left: 10px;
-      text-decoration: none;
+.nav-links {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: right;
+  max-width: 1200px;
+  a {
+    margin-left: 10px;
+    text-decoration: none;
+    color: $primary;
+    &:visited {
       color: $primary;
-      &:visited {
-        color: $primary;
-      }
     }
+  }
+  .signout {
+    display: inline-block;
+    margin-left: 10px;
+    cursor: pointer;
+    color: $primary;
   }
 }
 </style>

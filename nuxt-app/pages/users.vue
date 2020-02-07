@@ -1,6 +1,8 @@
 <template>
   <div class="container">
-    <div>Nothing to see here!</div>
+    <div>
+      <UserSearch msg="Example app - Search some users by name!" />
+    </div>
   </div>
 </template>
 
@@ -8,7 +10,8 @@
 export default {
   components: {
     UserSearch: () => import("../components/UserSearch")
-  }
+  },
+  middleware: "authenticated"
 };
 </script>
 
