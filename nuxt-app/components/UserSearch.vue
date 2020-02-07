@@ -42,10 +42,10 @@ export default {
   methods: {
     async searchUsers() {
       this.appUrl = window.location.href;
-      await this.$store.dispatch("auth/checkToken");
+      await this.$store.dispatch("auth1/checkToken");
       let config = {
         headers: {
-          Authorization: "Bearer " + this.$store.state.auth.access_token
+          Authorization: this.$store.state.auth.access_token
         }
       };
       this.$axios
@@ -62,10 +62,10 @@ export default {
     },
     getXtoken() {
       this.appUrl = window.location.href;
-      this.$store.dispatch("auth/checkToken");
+      this.$store.dispatch("auth1/checkToken");
       let config = {
         headers: {
-          Authorization: "Bearer " + this.$store.state.auth.access_token
+          Authorization: this.$store.state.auth.access_token
         }
       };
       this.$axios

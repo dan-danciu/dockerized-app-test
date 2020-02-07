@@ -14,12 +14,12 @@
 export default {
   computed: {
     isAuthenticated() {
-      return this.$store.state.auth.authenticated;
+      return this.$store.state.auth1.authenticated;
     }
   },
   methods: {
     signout() {
-      this.$store.dispatch("auth/signOut");
+      this.$store.dispatch("auth1/signOut").then(() => this.$router.replace({name: 'login'}));
     }
   }
 };

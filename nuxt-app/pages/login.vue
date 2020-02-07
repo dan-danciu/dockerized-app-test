@@ -36,7 +36,7 @@ export default {
   },
   mounted() {
     if (localStorage.getItem("access_token")) {
-      this.$store.dispatch("auth/signIn", "");
+      this.$store.dispatch("auth1/signIn", "");
     }
   },
   methods: {
@@ -45,7 +45,7 @@ export default {
       formData.append("username", this.username);
       formData.append("password", this.password);
       this.$store
-        .dispatch("auth/signIn", formData)
+        .dispatch("auth1/signIn", formData)
         .then(() => this.$router.replace({ name: "index" }));
     }
   }

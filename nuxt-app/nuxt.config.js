@@ -35,12 +35,24 @@ export default {
   /*
    ** Nuxt.js modules
    */
-  modules: ["@nuxtjs/style-resources", "@nuxtjs/axios"],
+  modules: ["@nuxtjs/style-resources", "@nuxtjs/axios", "@nuxtjs/auth"],
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
+    baseURL: 'http://localhost'
+  },
+  auth: {
+    strategies: {
+      local: {
+        endpoints: {
+          login: { url: '/api/auth/token', method: 'post', propertyName: 'access_token'},
+          logout: false,
+          user: {url: '/api/users/me', method: 'get', propertyName: false}
+        }
+      }
+    }
   },
   /*
    ** Build configuration
