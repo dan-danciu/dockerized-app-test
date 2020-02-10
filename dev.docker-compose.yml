@@ -7,7 +7,7 @@ services:
       context: ./nginx
     ports:
       - 80:80
-    restart: always
+    restart: on-failure
     depends_on:
       - api
       - frontend
@@ -19,7 +19,7 @@ services:
       context: ./nuxt-app
     ports:
       - 8080:8080
-    restart: always
+    restart: on-failure
     volumes:
       - ./nuxt-app/assets/:/app/assets
       - ./nuxt-app/components/:/app/components
@@ -36,7 +36,7 @@ services:
 
   mongo:
     image: mongo
-    restart: always
+    restart: on-failure
     ports:
       - 27017:27017
     environment:
@@ -47,7 +47,7 @@ services:
 
   mongo-express:
     image: mongo-express
-    restart: always
+    restart: on-failure
     ports:
       - 8081:8081
     environment:
@@ -60,7 +60,7 @@ services:
     build:
       dockerfile: dev.Dockerfile
       context: ./auth
-    restart: always
+    restart: on-failure
     ports:
       - 5001:80
     volumes:
@@ -78,7 +78,7 @@ services:
       context: ./api
     ports:
       - 5000:80
-    restart: always
+    restart: on-failure
     volumes:
       - ./api/app:/app
     depends_on:
@@ -93,7 +93,7 @@ services:
     build:
       dockerfile: dev.Dockerfile
       context: ./edge-JWT-translator
-    restart: always
+    restart: on-failure
     ports:
       - 5002:80
     volumes:
