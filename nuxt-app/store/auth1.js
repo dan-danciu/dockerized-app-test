@@ -88,14 +88,26 @@ const actions = {
     this.$auth.setToken("local", "Bearer " + payload.access_token);
     this.$auth.setRefreshToken("local", payload.refresh_token);
 
+    let getUserConfig = {
+      headers: {
+        Authorization: this.$auth.getToken("local")
+      }
+    };
+    let user = await this.$axios.get(
+      "http://localhost/api/users/me",
+      getUserConfig
+    )
+    
+    this.$auth.setUser(user.data)
+
     // localStorage.setItem("access_token", res.data.access_token);
     // sessionStorage.setItem("refresh_token", res.data.refresh_token);
   },
 
-  async refreshToken({ state, commit }, formData) {
+  async refreshToken({ commit }, formData) {
     let config = {
       headers: {
-        Authorization: state.access_token
+        Authorization: this.$auth.getToken("local")
       }
     };
     let res = await this.$axios.post(
@@ -112,6 +124,18 @@ const actions = {
     await commit("setCredentials", payload);
     this.$auth.setToken("local", "Bearer " + payload.access_token);
     this.$auth.setRefreshToken("local", payload.refresh_token);
+
+    let getUserConfig = {
+      headers: {
+        Authorization: this.$auth.getToken("local")
+      }
+    };
+    let user = await this.$axios.get(
+      "http://localhost/api/users/me",
+      getUserConfig
+    )
+    
+    this.$auth.setUser(user.data)
     // localStorage.setItem("access_token", res.data.access_token);
     // sessionStorage.setItem("refresh_token", res.data.refresh_token);
   },

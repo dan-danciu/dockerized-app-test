@@ -1,7 +1,6 @@
-export default function ({ store, redirect }) {
-  console.log(store.state.auth1.authenticated)
+export default function ({ $auth, redirect }) {
   // If the user is authenticated redirect to home page
-    if (store.state.auth1.authenticated) {
+    if ($auth.loggedIn) {
       return redirect('/')
     }
   }

@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <form @submit.prevent="login" @keyup.enter="login">
+    <form @submit.prevent="login">
       <label for="username" hidden>username</label>
       <input
         type="text"
@@ -12,6 +12,7 @@
       <br />
       <label for="password" hidden>password</label>
       <input
+        @keyup.enter="login"
         type="password"
         id="password"
         v-model="password"
@@ -33,11 +34,6 @@ export default {
       username: "",
       password: ""
     };
-  },
-  mounted() {
-    if (localStorage.getItem("access_token")) {
-      this.$store.dispatch("auth1/signIn", "");
-    }
   },
   methods: {
     async login() {
