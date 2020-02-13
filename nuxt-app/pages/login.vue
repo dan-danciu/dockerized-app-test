@@ -40,9 +40,11 @@ export default {
       let formData = new FormData();
       formData.append("username", this.username);
       formData.append("password", this.password);
-      this.$store
-        .dispatch("auth1/signIn", formData)
-        .then(() => this.$router.replace({ name: "users" }));
+      this.$store.dispatch("auth1/signIn", formData).then(() => {
+        if (this.$route.name !== "users") {
+          this.$router.replace({ name: "users" });
+        }
+      });
     }
   }
 };

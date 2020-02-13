@@ -9,21 +9,19 @@ const state = () => {
   return getDefaultState();
 };
 
+
 const actions = {
   async signIn({ dispatch }, formData) {
     let token = this.$auth.getToken("local");
-    let refresh_token = this.$auth.getRefreshToken("local");
+    let refresh_token = sessionStorage.getItem("refresh_token");
     if (token && refresh_token) {
       await dispatch("checkToken")
-    } else if (formData) {
+    } else {
       await dispatch("requestToken", formData);
-    }
-    else {
-      dispatch("signOut")
     }
   },
 
-  signOut({}) {
+  signOut({ }) {
     localStorage.clear();
     sessionStorage.clear();
     this.$auth.logout()
@@ -36,43 +34,41 @@ const actions = {
       }
     };
     let res = await this.$axios.post(
-      "http://localhost/api/auth/token",
+      "/api/auth/token",
       formData,
       config
     );
-
-    this.$auth.setToken("local", "Bearer " + res.data.access_token);
-    this.$auth.setRefreshToken("local", res.data.refresh_token);
+    await this.$auth.setToken("local", "Bearer " + res.data.access_token);
+    sessionStorage.setItem("refresh_token", res.data.refresh_token);
 
     await dispatch("getUser")
 
   },
 
   async refreshToken({ dispatch }, formData) {
-    console.log("refreshing")
     let config = {
       headers: {
         Authorization: this.$auth.getToken("local")
       }
     };
     let res = await this.$axios.post(
-      "http://localhost/api/auth/refresh",
+      "/api/auth/refresh",
       formData,
       config
     );
-    this.$auth.setToken("local", "Bearer " + res.data.access_token);
-    this.$auth.setRefreshToken("local", res.data.refresh_token);
+    await this.$auth.setToken("local", "Bearer " + res.data.access_token);
+    sessionStorage.setItem("refresh_token", res.data.refresh_token);
 
     await dispatch("getUser")
   },
 
-  async checkToken({ dispatch }) {
+  async checkToken({ state, dispatch }) {
     let jsonPayload = jwt_decode(this.$auth.getToken("local"));
     let expires = jsonPayload.exp;
     if (expires < Math.floor(Date.now() / 1000)) {
       if (this.$auth.loggedIn) {
         let formData = new FormData();
-        formData.append("refresh_token", this.$auth.getRefreshToken("local"));
+        formData.append("refresh_token", sessionStorage.getItem("refresh_token"));
         await dispatch("refreshToken", formData);
       }
     }

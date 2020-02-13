@@ -49,10 +49,7 @@ export default {
         }
       };
       this.$axios
-        .get(
-          "http://localhost/api/users/find?search_string=" + this.searchTerm,
-          config
-        )
+        .get("/api/users/find?search_string=" + this.searchTerm, config)
         .then(res => {
           this.users = res.data;
         })
@@ -69,7 +66,7 @@ export default {
         }
       };
       this.$axios
-        .get("http://localhost/api/users/xtoken", config)
+        .get("/api/users/xtoken", config)
         .then(res => {
           this.xtoken = res.data;
         })
