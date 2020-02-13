@@ -45,7 +45,7 @@ export default {
       await this.$store.dispatch("auth1/checkToken");
       let config = {
         headers: {
-          Authorization: this.$store.state.auth.access_token
+          Authorization: this.$auth.getToken("local")
         }
       };
       this.$axios
@@ -65,7 +65,7 @@ export default {
       this.$store.dispatch("auth1/checkToken");
       let config = {
         headers: {
-          Authorization: this.$store.state.auth.access_token
+          Authorization: this.$auth.getToken("local")
         }
       };
       this.$axios

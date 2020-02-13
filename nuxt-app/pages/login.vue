@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <form @submit.prevent="login">
+    <form @submit.prevent @keyup.enter="login">
       <label for="username" hidden>username</label>
       <input
         type="text"
@@ -12,7 +12,6 @@
       <br />
       <label for="password" hidden>password</label>
       <input
-        @keyup.enter="login"
         type="password"
         id="password"
         v-model="password"
@@ -21,7 +20,7 @@
       />
       <br />
       <br />
-      <input type="submit" value="Login" />
+      <input type="submit" value="Login" @click="login" />
     </form>
   </div>
 </template>
@@ -36,13 +35,14 @@ export default {
     };
   },
   methods: {
-    async login() {
+    async login(event) {
+      event.preventDefault();
       let formData = new FormData();
       formData.append("username", this.username);
       formData.append("password", this.password);
       this.$store
         .dispatch("auth1/signIn", formData)
-        .then(() => this.$router.replace({ name: "index" }));
+        .then(() => this.$router.replace({ name: "users" }));
     }
   }
 };

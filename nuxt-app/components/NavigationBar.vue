@@ -4,7 +4,7 @@
       <nuxtLink to="/">Home</nuxtLink>
       <nuxtLink to="/login" v-show="!isAuthenticated">Login</nuxtLink>
       <nuxtLink to="/about">About</nuxtLink>
-      <nuxtLink to="/users" @v-show="isAuthenticated">User Search</nuxtLink>
+      <nuxtLink to="/users" v-show="isAuthenticated">User Search</nuxtLink>
       <a class="signout" @click="signout" v-show="isAuthenticated">Sign out</a>
     </div>
   </nav>
@@ -14,12 +14,14 @@
 export default {
   computed: {
     isAuthenticated() {
-      return this.$store.state.auth1.authenticated;
+      return this.$auth.loggedIn;
     }
   },
   methods: {
     signout() {
-      this.$store.dispatch("auth1/signOut").then(() => this.$router.replace({name: 'login'}));
+      this.$store
+        .dispatch("auth1/signOut")
+        .then(() => this.$router.replace({ name: "login" }));
     }
   }
 };

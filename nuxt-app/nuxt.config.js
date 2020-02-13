@@ -49,7 +49,7 @@ export default {
         endpoints: {
           login: { url: '/api/auth/token', method: 'post', propertyName: false},
           logout: false,
-          user: {url: '/api/users/me', method: 'get', propertyName: false}
+          user: false
         }
       }
     }

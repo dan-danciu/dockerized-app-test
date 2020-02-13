@@ -2,10 +2,6 @@ import jwt_decode from "jwt-decode";
 
 const getDefaultState = () => {
   return {
-    access_token: null,
-    token_expires: null,
-    refresh_token: null,
-    authenticated: false
   };
 };
 
@@ -13,60 +9,27 @@ const state = () => {
   return getDefaultState();
 };
 
-const getters = {};
-
-const mutations = {
-  setCredentials(state, payload) {
-    state.access_token = payload.access_token;
-    state.token_expires = payload.token_expires;
-    state.refresh_token = payload.refresh_token;
-    state.authenticated = true;
-  },
-  clearData(state) {
-    Object.assign(state, getDefaultState());
-  }
-};
-
-// will need to do this:
-// use auth to log in
-// serve refresh token with users/me
-// update token with axios refresh token
-// tomorrow...
-
-
 const actions = {
-  async signIn({ commit, dispatch }, formData) {
+  async signIn({ dispatch }, formData) {
     let token = this.$auth.getToken("local");
     let refresh_token = this.$auth.getRefreshToken("local");
-    if (token) {
-      let jsonPayload = jwt_decode(token);
-      let expires = jsonPayload.exp;
-      if (expires < Math.floor(Date.now() / 1000)) {
-        if (refresh_token) {
-          await dispatch("requestToken", formData);
-        } else {
-          await dispatch("signOut");
-        }
-      } else {
-        let payload = {
-          access_token: token,
-          token_expires: jsonPayload.exp,
-          refresh_token
-        };
-        await commit("setCredentials", payload);
-      }
-    } else {
+    if (token && refresh_token) {
+      await dispatch("checkToken")
+    } else if (formData) {
       await dispatch("requestToken", formData);
+    }
+    else {
+      dispatch("signOut")
     }
   },
 
-  signOut({ commit }) {
+  signOut({}) {
     localStorage.clear();
     sessionStorage.clear();
-    commit("clearData");
+    this.$auth.logout()
   },
 
-  async requestToken({ commit }, formData) {
+  async requestToken({ dispatch }, formData) {
     let config = {
       headers: {
         "Content-Type": "multipart/form-data"
@@ -78,33 +41,15 @@ const actions = {
       config
     );
 
-    let jsonPayload = jwt_decode(res.data.access_token);
-    let payload = {
-      access_token: res.data.access_token,
-      token_expires: jsonPayload.exp,
-      refresh_token: res.data.refresh_token
-    };
-    await commit("setCredentials", payload);
-    this.$auth.setToken("local", "Bearer " + payload.access_token);
-    this.$auth.setRefreshToken("local", payload.refresh_token);
+    this.$auth.setToken("local", "Bearer " + res.data.access_token);
+    this.$auth.setRefreshToken("local", res.data.refresh_token);
 
-    let getUserConfig = {
-      headers: {
-        Authorization: this.$auth.getToken("local")
-      }
-    };
-    let user = await this.$axios.get(
-      "http://localhost/api/users/me",
-      getUserConfig
-    )
-    
-    this.$auth.setUser(user.data)
+    await dispatch("getUser")
 
-    // localStorage.setItem("access_token", res.data.access_token);
-    // sessionStorage.setItem("refresh_token", res.data.refresh_token);
   },
 
-  async refreshToken({ commit }, formData) {
+  async refreshToken({ dispatch }, formData) {
+    console.log("refreshing")
     let config = {
       headers: {
         Authorization: this.$auth.getToken("local")
@@ -115,46 +60,42 @@ const actions = {
       formData,
       config
     );
-    let jsonPayload = jwt_decode(res.data.access_token);
-    let payload = {
-      access_token: res.data.access_token,
-      token_expires: jsonPayload.exp,
-      refresh_token: res.data.refresh_token
-    };
-    await commit("setCredentials", payload);
-    this.$auth.setToken("local", "Bearer " + payload.access_token);
-    this.$auth.setRefreshToken("local", payload.refresh_token);
+    this.$auth.setToken("local", "Bearer " + res.data.access_token);
+    this.$auth.setRefreshToken("local", res.data.refresh_token);
 
-    let getUserConfig = {
+    await dispatch("getUser")
+  },
+
+  async checkToken({ dispatch }) {
+    let jsonPayload = jwt_decode(this.$auth.getToken("local"));
+    let expires = jsonPayload.exp;
+    if (expires < Math.floor(Date.now() / 1000)) {
+      if (this.$auth.loggedIn) {
+        let formData = new FormData();
+        formData.append("refresh_token", this.$auth.getRefreshToken("local"));
+        await dispatch("refreshToken", formData);
+      }
+    }
+    return;
+  },
+
+  async getUser({}) {
+    let config = {
       headers: {
         Authorization: this.$auth.getToken("local")
       }
     };
     let user = await this.$axios.get(
-      "http://localhost/api/users/me",
-      getUserConfig
+      "/api/users/me",
+      config
     )
     
     this.$auth.setUser(user.data)
-    // localStorage.setItem("access_token", res.data.access_token);
-    // sessionStorage.setItem("refresh_token", res.data.refresh_token);
-  },
-
-  async checkToken({ state, dispatch }) {
-    if (state.token_expires < Math.floor(Date.now() / 1000)) {
-      if (state.refresh_token) {
-        let formData = new FormData();
-        formData.append("refresh_token", state.refresh_token);
-        await dispatch("refreshToken", formData);
-      }
-    }
-    return;
   }
 };
 
+
 export default {
   state,
-  getters,
-  actions,
-  mutations
+  actions
 };
