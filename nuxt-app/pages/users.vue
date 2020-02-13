@@ -11,10 +11,7 @@ export default {
   components: {
     UserSearch: () => import("../components/UserSearch")
   },
-  middleware: "authenticated",
-  fetch({ store }) {
-    store.dispatch("auth1/signIn", "");
-  }
+  middleware: "authenticated"
 };
 </script>
 
