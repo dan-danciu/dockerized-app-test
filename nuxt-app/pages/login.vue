@@ -35,7 +35,7 @@ export default {
     };
   },
   methods: {
-    async login(event) {
+    login(event) {
       event.preventDefault();
       let formData = new FormData();
       formData.append("username", this.username);
