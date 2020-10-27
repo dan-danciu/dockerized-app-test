@@ -1,7 +1,7 @@
 bcrypt==3.1.7
 cffi==1.13.1
 Click==7.0
-cryptography==2.8
+cryptography==3.2
 dataclasses>=0.6
 fastapi==0.42.0
 h11==0.8.1
