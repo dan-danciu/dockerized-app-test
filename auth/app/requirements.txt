@@ -8,7 +8,7 @@ h11==0.8.1
 httptools==0.0.13
 passlib==1.7.1
 pycparser==2.19
-pydantic==0.32.2
+pydantic==1.6.2
 PyJWT==1.7.1
 pymongo==3.9.0
 python-multipart==0.0.5
